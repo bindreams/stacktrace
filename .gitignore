@@ -4,3 +4,6 @@ dist
 
 # IDE folders
 .vscode
+
+# CMake
+CmakeUserPresets.json
