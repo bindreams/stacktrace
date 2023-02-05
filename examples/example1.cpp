@@ -37,8 +37,17 @@ int main() {
 		auto trace = zh::stacktrace();
 		zh::drop_frames_until_throw(trace);
 		zh::drop_frames_after_main(trace);
-		for (auto& frame : trace) {
-			std::cerr << frame.file << ":" << frame.line << " in " << frame.symbol << "\n";
+		for (int i = 0; i < trace.size(); i++) {
+			auto& frame = trace[i];
+
+			std::cerr << i << ": ";
+			if (frame.symbol.empty()) {
+				std::cerr << "<unknown>";
+			} else {
+				std::cerr << frame.symbol;
+			}
+			if (!frame.file.empty()) std::cerr << " at " << frame.file << ":" << frame.line;
+			std::cerr << "\n";
 		}
 
 		std::cerr << "Done.\n";

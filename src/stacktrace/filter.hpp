@@ -41,7 +41,14 @@ bool drop_frames_after(std::vector<stackframe>& trace, std::string_view symbol) 
  * handler.
  */
 bool drop_frames_until_throw(std::vector<stackframe>& trace) {
-	return drop_frames_until(trace, "CxxThrowException");
+	std::string_view throw_symbol =
+#ifdef _WIN32
+		"CxxThrowException";
+#else
+		"__cxa_throw";
+#endif
+
+	return drop_frames_until(trace, throw_symbol);
 }
 
 /// Drop stack frames after main(), i.e. internal system function calls before program start.

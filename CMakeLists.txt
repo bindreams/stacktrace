@@ -3,6 +3,7 @@ project(stacktrace VERSION 0.1.0)
 
 include(cmake/warnings.cmake)
 include(cmake/packaging.cmake)
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules)
 
 #option(STACKTRACE_TESTS "Build tests for stacktrace" OFF)
 option(STACKTRACE_EXAMPLES "Build examples for stacktrace" OFF)
@@ -15,7 +16,14 @@ target_include_directories(stacktrace INTERFACE
 	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
 	$<INSTALL_INTERFACE:include>
 )
-target_link_libraries(stacktrace INTERFACE dbghelp)
+if(WIN32)
+	target_link_libraries(stacktrace INTERFACE dbghelp)
+else()
+	find_package(libunwind REQUIRED)
+	find_package(elfutils REQUIRED)
+
+	target_link_libraries(stacktrace INTERFACE elfutils::dw unwind)
+endif()
 target_compile_features(stacktrace INTERFACE cxx_std_17)
 target_package(stacktrace)
 
@@ -29,6 +37,7 @@ target_package(stacktrace)
 
 if(STACKTRACE_EXAMPLES)
 	add_executable(stacktrace_example1 "examples/example1.cpp")
+	set_target_properties(stacktrace_example1 PROPERTIES ENABLE_EXPORTS ON)
 	target_link_libraries(stacktrace_example1 PRIVATE stacktrace)
 
 	install(TARGETS stacktrace_example1)

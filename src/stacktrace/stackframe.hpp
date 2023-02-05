@@ -5,7 +5,7 @@ namespace zh {
 
 struct stackframe {
 	std::string file;
-	int line;
+	int line = 0;
 	std::string symbol;
 };
 
