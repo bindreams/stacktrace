@@ -8,46 +8,15 @@
 #include <stdexcept>
 #include <string>
 
-#include <cxxabi.h>
 #include <execinfo.h>
 #include <unistd.h>
 
 #include <elfutils/libdwfl.h>
 
+#include "util.hpp"
+
 namespace zh {
 namespace detail {
-
-std::string demangle(const char* mangled_name) {
-	size_t length;
-	int status;
-
-	auto deleter = [](char* str) { std::free(str); };
-	std::unique_ptr<char, decltype(deleter)> name(
-		abi::__cxa_demangle(mangled_name, nullptr, &length, &status), deleter
-	);
-
-	if (name == nullptr) {
-		switch (status) {
-			case -1:
-				std::cerr << "stacktrace: could not demangle symbol " << mangled_name
-						  << ": memory allocation failure\n";
-				break;
-			case -2:
-				break;
-			case -3:
-				std::cerr << "stacktrace: could not demangle symbol " << mangled_name << ": invalid argument\n";
-				break;
-			default:
-				std::cerr << "stacktrace: could not demangle symbol " << mangled_name
-						  << ": __cxa_demangle failed with code " << status << "\n";
-				break;
-		}
-
-		return std::string{mangled_name};
-	}
-
-	return std::string{name.get()};
-}
 
 stackframe get_frame(Dwfl* dwfl, void* ip) {
 	stackframe frame;
